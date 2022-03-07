@@ -20,7 +20,7 @@ exports.deleteCard = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при удалении карточки' })
       } else {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })

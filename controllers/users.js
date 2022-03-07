@@ -8,6 +8,7 @@ exports.getUsers = (req, res) => {
   user.find({})
     .then((users) => res.status(200).send(users))
     .catch(() => res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' }))
+    .catch (() => { res.status(ERROR_NF).send({ message: 'Путь не найден!' })})
 };
 
 exports.getUserById = (req, res) => {
@@ -20,7 +21,7 @@ exports.getUserById = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при поиске пользователя' })
       } else {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
@@ -59,9 +60,10 @@ exports.updateProfile = (req, res) => {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
       }
     })
+    .catch (() => { res.status(ERROR_NF).send({ message: 'Путь не найден!' })})
 };
 
-exports.updateAvatar = (req, res) => {
+exports.updateAvatar = async (req, res) => {
   const id = req.user._id;
   const { avatar } = req.body;
   user.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true, upsert: true })
@@ -79,6 +81,7 @@ exports.updateAvatar = (req, res) => {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
       }
     })
+    .catch (() => { res.status(ERROR_NF).send({ message: 'Путь не найден!' })})
 };
 
 

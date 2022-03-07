@@ -17,8 +17,8 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json())
-app.use(userRoutes)
-app.use(cardRoutes)
+app.use('/', userRoutes)
+app.use('/', cardRoutes)
 
 async function main() {
 
