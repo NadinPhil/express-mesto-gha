@@ -19,7 +19,13 @@ exports.deleteCard = (req, res) => {
         res.status(ERROR_NF).send({ message: 'Карточка с указанным _id не найдена' })
       }
     })
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при удалении карточки' })
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
+      }
+    })
 };
 
 exports.createCard = (req, res) => {
@@ -50,7 +56,7 @@ exports.putCardLike = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные для постановки лайка' })
       } else {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
@@ -72,7 +78,7 @@ exports.deleteCardLike = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
         return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные для снятия лайка' })
       } else {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })

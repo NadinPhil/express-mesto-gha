@@ -19,7 +19,13 @@ exports.getUserById = (req, res) => {
         res.status(ERROR_NF).send({ message: 'Пользователь по указанному _id не найден' })
       }
     })
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при поиске пользователя' })
+      } else {
+        res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
+      }
+    })
 };
 
 exports.createUser = (req, res) => {
@@ -41,7 +47,7 @@ exports.updateProfile = (req, res) => {
   user.findByIdAndUpdate(id, { name, about }, { new: true, runValidators: true, upsert: true })
     .then((user) => {
       if (user) {
-        res.status(200).send(user);
+        return res.status(200).send({ data: user });
       } else {
         res.status(ERROR_NF).send({ message: 'Пользователь с указанным _id не найден.' })
       }
@@ -61,7 +67,7 @@ exports.updateAvatar = (req, res) => {
   user.findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true, upsert: true })
     .then((user) => {
       if (user) {
-        res.status(200).send(user);
+        return res.status(200).send({ data: user });
       } else {
         res.status(ERROR_NF).send({ message: 'Пользователь с указанным _id не найден.' })
       }
