@@ -8,7 +8,6 @@ exports.getUsers = (req, res) => {
   user.find({})
     .then((users) => res.status(200).send(users))
     .catch(() => res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' }))
-    .catch (() => { res.status(ERROR_NF).send({ message: 'Путь не найден!' })})
 };
 
 exports.getUserById = (req, res) => {
@@ -21,6 +20,7 @@ exports.getUserById = (req, res) => {
       }
     })
     .catch((err) => {
+      console.log(err)
       if (err.name === 'CastError') {
         return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при поиске пользователя' })
       } else {
@@ -47,20 +47,19 @@ exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   user.findByIdAndUpdate(id, { name, about }, { new: true, runValidators: true, upsert: true })
     .then((user) => {
-      if (user) {
-        return res.status(200).send({ data: user });
-      } else {
-        res.status(ERROR_NF).send({ message: 'Пользователь с указанным _id не найден.' })
+      if (!user) {
+        return res.status(ERROR_NF).send({ message: 'Пользователь с указанным _id не найден.' })
       }
+      return res.status(200).send({ data: user });
     })
     .catch((err) => {
+      console.log(err)
       if (err.name === 'ValidationError') {
         return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при обновлении профиля.' })
       } else {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
       }
     })
-    .catch (() => { res.status(ERROR_NF).send({ message: 'Путь не найден!' })})
 };
 
 exports.updateAvatar = async (req, res) => {
@@ -71,7 +70,7 @@ exports.updateAvatar = async (req, res) => {
       if (user) {
         return res.status(200).send({ data: user });
       } else {
-        res.status(ERROR_NF).send({ message: 'Пользователь с указанным _id не найден.' })
+        return res.status(ERROR_NF).send({ message: 'Пользователь с указанным _id не найден.' })
       }
     })
     .catch((err) => {
@@ -81,7 +80,4 @@ exports.updateAvatar = async (req, res) => {
         res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' })
       }
     })
-    .catch (() => { res.status(ERROR_NF).send({ message: 'Путь не найден!' })})
-};
-
-
+}
