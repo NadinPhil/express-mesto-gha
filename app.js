@@ -4,6 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { userRoutes } = require('./routes/users');
 const { cardRoutes } = require('./routes/cards');
+
 const { PORT = 3000 } = process.env;
 const ERROR_NF = 404;
 
@@ -11,32 +12,28 @@ const app = express();
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '6225a0143e594bf412a187a9'
+    _id: '6225a0143e594bf412a187a9',
   };
-
-  //res.status(ERROR_NF).send({ message: 'Путь не найден!' })
 
   next();
 });
 
-app.use(express.json())
-app.use('/', userRoutes)
-app.use('/', cardRoutes)
+app.use(express.json());
+app.use('/', userRoutes);
+app.use('/', cardRoutes);
 app.use((req, res) => {
-  res.status(ERROR_NF).send({ message: 'Путь не найден!' })
-})
+  res.status(ERROR_NF).send({ message: 'Путь не найден!' });
+});
 
 async function main() {
-
   await mongoose.connect('mongodb://localhost:27017/mestodb', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
-  console.log('CONNECTED!')
+  console.log('CONNECTED!');
 
-  await app.listen(PORT)
+  await app.listen(PORT);
 
-  console.log(`App listening on port ${PORT}`)
-
+  console.log(`App listening on port ${PORT}`);
 }
 main();
