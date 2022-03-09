@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 const mongoose = require('mongoose');
 
-const card = new mongoose.Schema({
+const cardSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -27,4 +27,5 @@ const card = new mongoose.Schema({
     default: Date.now,
   },
 });
-exports.card = mongoose.model('card', card);
+
+exports.card = mongoose.model('card', cardSchema);

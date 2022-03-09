@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const card = require('../models/card');
+const { card } = require('../models/card');
 
 const ERROR_BR = 400;
 const ERROR_NF = 404;
