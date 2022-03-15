@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable no-undef */
 const { card } = require('../models/card');
 
@@ -16,10 +17,8 @@ exports.deleteCard = (req, res, next) => {
     .then((data) => {
       if (data) {
         if (data.owner.equals(req.user._id)) {
-          data.deleteOne({});
-        } else {
-          next(new ForbiddenError('Запрещено удалять карточки чужих пользователей!'));
-        }
+          return data.deleteOne({}).then(() => res.send({ message: 'Карточка удалена' }));
+        } next(new ForbiddenError('Запрещено удалять карточки чужих пользователей!'));
       } else {
         next(new NotFoundError('Карточка с указанным _id не найдена!'));
       }

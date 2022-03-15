@@ -15,7 +15,7 @@ const validateCreateUser = require('./middlewares/validation');
 const validateLogin = require('./middlewares/validation');
 
 const { PORT = 3000 } = process.env;
-const ERROR_NF = 404;
+const NotFoundError = require('./errors/not-found-error');
 
 const app = express();
 
@@ -30,7 +30,7 @@ app.use('/', userRoutes);
 app.use('/', cardRoutes);
 
 app.use((req, res) => {
-  res.status(ERROR_NF).send({ message: 'Путь не найден!' });
+  res.send({ message: 'Путь не найден!' });
 });
 
 app.use(errors());

@@ -55,9 +55,11 @@ exports.createUser = async (req, res, next) => {
   user.create({
     name, about, avatar, email, password: hash,
   })
-    .then((user) => res.status(200).send({ user }))
+    .then((user) => res.status(200).send({
+      name: user.name, about: user.about, avatar: user.avatar, email: user.email,
+    }))
     .catch((err) => {
-      if (err.name === 'MongoError' && err.code === 11000) {
+      if (err.code === 11000) {
         next(new ConflictError('Пользователь с таким email уже существует!'));
       } else {
         next(err);

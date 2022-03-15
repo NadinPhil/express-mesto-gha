@@ -12,13 +12,25 @@ const validateCreateUser = celebrate({
     }).message({
       'any.required': 'Поле "email" должно быть заполнено',
     }),
-    password: Joi.string().required().min(8).max(30)
+    password: Joi.string().required(),
+
+    about: Joi.string().min(2).max(30)
       .message({
-        'string.min': 'Минимальная длина поля "password" - 8',
-        'string.max': 'Максимальная длина поля "password" - 30',
-        'any.required': 'Поле "password" должно быть заполнено',
+        'string.min': 'Минимальная длина поля "about" - 2',
+        'string.max': 'Максимальная длина поля "about" - 30',
       }),
-  }).unknown(true),
+    name: Joi.string().min(2).max(30)
+      .message({
+        'string.min': 'Минимальная длина поля "name" - 2',
+        'string.max': 'Максимальная длина поля "name" - 30',
+      }),
+    avatar: Joi.string().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Невалидный URL!');
+    }),
+  }),
 });
 
 const validateLogin = celebrate({
@@ -31,18 +43,14 @@ const validateLogin = celebrate({
     }).message({
       'any.required': 'Поле "email" должно быть заполнено',
     }),
-    password: Joi.string().required().min(8).max(30)
-      .message({
-        'string.min': 'Минимальная длина поля "password" - 8',
-        'string.max': 'Максимальная длина поля "password" - 30',
-        'any.required': 'Поле "password" должно быть заполнено',
-      }),
-  }).unknown(true),
+    password: Joi.string().required(),
+
+  }),
 });
 
 const validateGetUserById = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().alphanum().length(24)
+    userId: Joi.string().required().alphanum().length(24)
       .custom((value, helpers) => {
         if (ObjectId.isValid(value)) {
           return value;
@@ -53,40 +61,31 @@ const validateGetUserById = celebrate({
         'string.length': 'Длина поля - 24',
       }),
   }),
-  headers: Joi.object().keys({
-    authorization: Joi.string().required(),
-  }).unknown(true),
 });
 
 const validateUpdateProfile = celebrate({
   body: Joi.object().keys({
-    about: Joi.string().min(2).max(30)
-      .message({
-        'string.min': 'Минимальная длина поля "about" - 2',
-        'string.max': 'Максимальная длина поля "about" - 30',
-      }),
-    name: Joi.string().min(2).max(30)
-      .message({
-        'string.min': 'Минимальная длина поля "name" - 2',
-        'string.max': 'Максимальная длина поля "name" - 30',
-      }),
-  }).unknown(true),
+    about: Joi.string().min(2).max(30).required(),
+
+    name: Joi.string().min(2).max(30).required(),
+
+  }),
 });
 
 const validateUpdateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().custom((value, helpers) => {
+    avatar: Joi.string().required().custom((value, helpers) => {
       if (validator.isURL(value)) {
         return value;
       }
       return helpers.message('Невалидный URL!');
     }),
-  }).unknown(true),
+  }),
 });
 
 const validateDeleteCard = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().alphanum().length(24)
+    cardId: Joi.string().required().alphanum().length(24)
       .custom((value, helpers) => {
         if (ObjectId.isValid(value)) {
           return value;
@@ -97,9 +96,6 @@ const validateDeleteCard = celebrate({
         'string.length': 'Длина поля - 24',
       }),
   }),
-  headers: Joi.object().keys({
-    authorization: Joi.string().required(),
-  }).unknown(true),
 });
 
 const validateCreateCard = celebrate({
@@ -118,12 +114,12 @@ const validateCreateCard = celebrate({
         'string.max': 'Максимальная длина поля "name" - 30',
         'any.required': 'Поле "name" должно быть заполнено',
       }),
-  }).unknown(true),
+  }),
 });
 
 const validateCardLike = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().alphanum().length(24)
+    cardId: Joi.string().required().alphanum().length(24)
       .custom((value, helpers) => {
         if (ObjectId.isValid(value)) {
           return value;
@@ -134,9 +130,6 @@ const validateCardLike = celebrate({
         'string.length': 'Длина поля - 24',
       }),
   }),
-  headers: Joi.object().keys({
-    authorization: Joi.string().required(),
-  }).unknown(true),
 });
 
 module.exports = validateCardLike;
