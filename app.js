@@ -2,28 +2,40 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
+
 const { userRoutes } = require('./routes/users');
 const { cardRoutes } = require('./routes/cards');
+const {
+  createUser, login,
+} = require('./controllers/users');
+const { auth } = require('./middlewares/auth');
+const { errorHandler } = require('./middlewares/errorHandler');
+const validateCreateUser = require('./middlewares/validation');
+const validateLogin = require('./middlewares/validation');
 
 const { PORT = 3000 } = process.env;
 const ERROR_NF = 404;
 
 const app = express();
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6225a0143e594bf412a187a9',
-  };
-
-  next();
-});
-
 app.use(express.json());
+
+app.post('/signup', validateCreateUser, createUser);
+app.post('/signin', validateLogin, login);
+
+app.use(auth);
+
 app.use('/', userRoutes);
 app.use('/', cardRoutes);
+
 app.use((req, res) => {
   res.status(ERROR_NF).send({ message: 'Путь не найден!' });
 });
+
+app.use(errors());
+
+app.use(errorHandler);
 
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb', {

@@ -1,33 +1,39 @@
 /* eslint-disable no-undef */
 const { card } = require('../models/card');
 
-const ERROR_BR = 400;
-const ERROR_NF = 404;
-const ERROR_SERVER = 500;
+const BadRequestError = require('../errors/bad-request-error');
+const NotFoundError = require('../errors/not-found-error');
+const ForbiddenError = require('../errors/forbidden-error');
 
-exports.getCards = (req, res) => {
+exports.getCards = (req, res, next) => {
   card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch(() => res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' }));
+    .catch(next);
 };
 
-exports.deleteCard = (req, res) => {
-  card.findByIdAndRemove(req.params.cardId)
+exports.deleteCard = (req, res, next) => {
+  card.findById(req.params.cardId)
     .then((data) => {
       if (data) {
-        res.send(data);
+        if (data.owner.equals(req.user._id)) {
+          data.deleteOne({});
+        } else {
+          next(new ForbiddenError('Запрещено удалять карточки чужих пользователей!'));
+        }
       } else {
-        res.status(ERROR_NF).send({ message: 'Карточка с указанным _id не найдена' });
+        next(new NotFoundError('Карточка с указанным _id не найдена!'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при удалении карточки' });
-      } return res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' });
+        next(new BadRequestError('Переданы некорректные данные при удалении карточки!'));
+      } else {
+        next(err);
+      }
     });
 };
 
-exports.createCard = (req, res) => {
+exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const ownerId = req.user._id;
   card.create({ name, link, owner: ownerId })
@@ -36,12 +42,14 @@ exports.createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные при создании карточки' });
-      } return res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' });
+        next(new BadRequestError('Переданы некорректные данные при создании карточки!'));
+      } else {
+        next(err);
+      }
     });
 };
 
-exports.putCardLike = (req, res) => {
+exports.putCardLike = (req, res, next) => {
   card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -51,17 +59,19 @@ exports.putCardLike = (req, res) => {
       if (cards) {
         res.send({ data: cards });
       } else {
-        res.status(ERROR_NF).send({ message: 'Передан несуществующий _id карточки' });
+        next(new NotFoundError('Передан несуществующий _id карточки'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные для постановки лайка' });
-      } return res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' });
+        next(new BadRequestError('Переданы некорректные данные для постановки лайка!'));
+      } else {
+        next(err);
+      }
     });
 };
 
-exports.deleteCardLike = (req, res) => {
+exports.deleteCardLike = (req, res, next) => {
   card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -71,12 +81,14 @@ exports.deleteCardLike = (req, res) => {
       if (cards) {
         res.send({ data: cards });
       } else {
-        res.status(ERROR_NF).send({ message: 'Передан несуществующий _id карточки' });
+        next(new NotFoundError('Передан несуществующий _id карточки'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERROR_BR).send({ message: 'Переданы некорректные данные для снятия лайка' });
-      } return res.status(ERROR_SERVER).send({ message: 'Ошибка по умолчанию' });
+        next(new BadRequestError('Переданы некорректные данные для снятия лайка!'));
+      } else {
+        next(err);
+      }
     });
 };
