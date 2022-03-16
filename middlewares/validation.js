@@ -13,16 +13,15 @@ const validateCreateUser = celebrate({
       'any.required': 'Поле "email" должно быть заполнено',
     }),
     password: Joi.string().required(),
-
-    about: Joi.string().min(2).max(30)
-      .message({
-        'string.min': 'Минимальная длина поля "about" - 2',
-        'string.max': 'Максимальная длина поля "about" - 30',
-      }),
     name: Joi.string().min(2).max(30)
       .message({
         'string.min': 'Минимальная длина поля "name" - 2',
         'string.max': 'Максимальная длина поля "name" - 30',
+      }),
+    about: Joi.string().min(2).max(30)
+      .message({
+        'string.min': 'Минимальная длина поля "about" - 2',
+        'string.max': 'Максимальная длина поля "about" - 30',
       }),
     avatar: Joi.string().custom((value, helpers) => {
       if (validator.isURL(value)) {
@@ -66,20 +65,18 @@ const validateGetUserById = celebrate({
 const validateUpdateProfile = celebrate({
   body: Joi.object().keys({
     about: Joi.string().min(2).max(30).required(),
-
     name: Joi.string().min(2).max(30).required(),
-
   }),
 });
 
 const validateUpdateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().custom((value, helpers) => {
+    avatar: Joi.string().custom((value, helpers) => {
       if (validator.isURL(value)) {
         return value;
       }
       return helpers.message('Невалидный URL!');
-    }),
+    }).required(),
   }),
 });
 
@@ -132,11 +129,13 @@ const validateCardLike = celebrate({
   }),
 });
 
-module.exports = validateCardLike;
-module.exports = validateCreateCard;
-module.exports = validateDeleteCard;
-module.exports = validateCreateUser;
-module.exports = validateLogin;
-module.exports = validateGetUserById;
-module.exports = validateUpdateProfile;
-module.exports = validateUpdateAvatar;
+module.exports = {
+  validateCardLike,
+  validateCreateCard,
+  validateDeleteCard,
+  validateCreateUser,
+  validateLogin,
+  validateGetUserById,
+  validateUpdateProfile,
+  validateUpdateAvatar,
+};

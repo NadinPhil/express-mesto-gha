@@ -11,11 +11,10 @@ const {
 } = require('./controllers/users');
 const { auth } = require('./middlewares/auth');
 const { errorHandler } = require('./middlewares/errorHandler');
-const validateCreateUser = require('./middlewares/validation');
-const validateLogin = require('./middlewares/validation');
+const { validateCreateUser } = require('./middlewares/validation');
+const { validateLogin } = require('./middlewares/validation');
 
 const { PORT = 3000 } = process.env;
-const NotFoundError = require('./errors/not-found-error');
 
 const app = express();
 
@@ -29,8 +28,8 @@ app.use(auth);
 app.use('/', userRoutes);
 app.use('/', cardRoutes);
 
-app.use((req, res) => {
-  res.send({ message: 'Путь не найден!' });
+app.use((req, res, next) => {
+  next(new NotFoundError('Маршрут не найден'));
 });
 
 app.use(errors());
