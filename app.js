@@ -13,6 +13,7 @@ const { auth } = require('./middlewares/auth');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { validateCreateUser } = require('./middlewares/validation');
 const { validateLogin } = require('./middlewares/validation');
+const NotFoundError = require('./errors/not-found-error');
 
 const { PORT = 3000 } = process.env;
 
