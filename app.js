@@ -14,12 +14,15 @@ const { errorHandler } = require('./middlewares/errorHandler');
 const { validateCreateUser } = require('./middlewares/validation');
 const { validateLogin } = require('./middlewares/validation');
 const NotFoundError = require('./errors/not-found-error');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
 const app = express();
 
 app.use(express.json());
+
+app.use(requestLogger);
 
 app.post('/signup', validateCreateUser, createUser);
 app.post('/signin', validateLogin, login);
@@ -28,6 +31,8 @@ app.use(auth);
 
 app.use('/', userRoutes);
 app.use('/', cardRoutes);
+
+app.use(errorLogger);
 
 app.use((req, res, next) => {
   next(new NotFoundError('Маршрут не найден'));
